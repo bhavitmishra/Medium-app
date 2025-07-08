@@ -5,6 +5,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { useState } from "react";
 
 export default function TiptapEditor() {
+  // @ts-ignore
   const [content, setContent] = useState("");
 
   const editor = useEditor({
