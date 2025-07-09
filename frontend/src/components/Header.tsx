@@ -1,43 +1,64 @@
 import { useNavigate } from "react-router-dom";
 
-interface HeaderProps {
+interface modal {
   setIsModalOpen: (value: boolean) => void;
 }
 
-export default function Header({ setIsModalOpen }: HeaderProps) {
+export default function Header({ setIsModalOpen }: modal) {
   const navigate = useNavigate();
-
   return (
-    <div className="flex flex-wrap items-center justify-between px-4 py-4 bg-white shadow-md">
-      {/* Left: Logo */}
-      <div className="text-2xl font-bold">
+    <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center px-4 py-4 gap-2 md:gap-0">
+      <div className="font-disp text-3xl">
         <button
-          onClick={() => window.location.reload()}
           className="cursor-pointer"
+          onClick={() => {
+            window.location.reload();
+          }}
         >
           Medium
         </button>
       </div>
 
-      {/* Center: Navigation (stack on mobile) */}
-      <div className="flex flex-wrap items-center gap-4 mt-2 sm:mt-0">
+      <div className="flex flex-wrap md:flex-nowrap items-center gap-3 mt-2 md:mt-0">
         <button
-          onClick={() =>
-            window.open("https://github.com/bhavitmishra/Medium-app")
-          }
+          className="cursor-pointer"
+          onClick={() => {
+            window.open("https://github.com/bhavitmishra/Medium-app");
+          }}
         >
           Our story
         </button>
-        <button onClick={() => setIsModalOpen(true)}>Write</button>
-        <button onClick={() => navigate("/signin")}>Signin</button>
-        <button onClick={() => navigate("/signup")}>Signup</button>
-      </div>
 
-      {/* Right: CTA */}
-      <div className="mt-2 sm:mt-0">
         <button
+          className="cursor-pointer"
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+        >
+          Write
+        </button>
+
+        <button
+          className="cursor-pointer"
+          onClick={() => {
+            navigate("/signin");
+          }}
+        >
+          Signin
+        </button>
+
+        <button
+          className="cursor-pointer"
+          onClick={() => {
+            navigate("/signup");
+          }}
+        >
+          Signup
+        </button>
+
+        <button
+          className="cursor-pointer bg-black text-white rounded-2xl px-4 h-9 text-[0.9rem] font-semibold"
           onClick={() => setIsModalOpen(true)}
-          className="bg-black text-white rounded-2xl px-4 py-2 text-sm font-semibold"
         >
           Get Started
         </button>
