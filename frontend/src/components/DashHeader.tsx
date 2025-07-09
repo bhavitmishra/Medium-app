@@ -19,25 +19,32 @@ export default function DashHeader() {
   const [blogs, setBlogs] = useState<BlogType[]>([]);
 
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const res = await axios.get(
-          "https://backend.bhavitmishra.workers.dev/api/v1/blog/search",
-          {
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-            params: { q: search },
-          }
-        );
-        // Assuming API returns { blogs: [...] }
-        setBlogs(res.data.blogs || []);
-      } catch (err) {
-        console.error("Error fetching blogs:", err);
-      }
-    };
+    const delayDebounce = setTimeout(() => {
+      const fetchBlogs = async () => {
+        try {
+          const res = await axios.get(
+            "https://backend.bhavitmishra.workers.dev/api/v1/blog/search",
+            {
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+              },
+              params: { q: search },
+            }
+          );
+          setBlogs(res.data.blogs || []);
+        } catch (err) {
+          console.error("Error fetching blogs:", err);
+        }
+      };
 
-    if (search.trim().length > 0) fetchBlogs();
+      if (search.trim().length > 0) {
+        fetchBlogs();
+      } else {
+        setBlogs([]); // clear results if search is empty
+      }
+    }, 500); // 500ms debounce delay
+
+    return () => clearTimeout(delayDebounce); // cleanup timeout on new keystroke
   }, [search]);
 
   return (
@@ -48,7 +55,7 @@ export default function DashHeader() {
           <button
             className="cursor-pointer"
             onClick={() => {
-              navigate("/dashboard");
+              window.location.reload();
             }}
           >
             Medium

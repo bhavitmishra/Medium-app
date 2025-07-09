@@ -7,11 +7,34 @@ export default function Header({ setIsModalOpen }: modal) {
   const navigate = useNavigate();
   return (
     <div className=" flex justify-between p-5">
-      <div className="pl-30 font-disp text-3xl">Medium</div>
+      <div className="pl-30 font-disp text-3xl">
+        <button
+          className="cursor-pointer"
+          onClick={() => {
+            window.location.reload();
+          }}
+        >
+          Medium
+        </button>
+      </div>
       <div className="flex items-center gap-2 pr-30">
         <div className="flex items-center gap-5">
-          <button className="cursor-pointer">Our story </button>
-          <button className="cursor-pointer">Write </button>
+          <button
+            className="cursor-pointer"
+            onClick={() => {
+              window.open("https://github.com/bhavitmishra/Medium-app");
+            }}
+          >
+            Our story{" "}
+          </button>
+          <button
+            className="cursor-pointer"
+            onClick={() => {
+              setIsModalOpen(true);
+            }}
+          >
+            Write{" "}
+          </button>
           <button
             className="cursor-pointer"
             onClick={() => {

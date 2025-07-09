@@ -63,6 +63,13 @@ BlogRouter.get("/search", async (c) => {
         },
       ],
     },
+    include: {
+      author: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
 
   return c.json({ blogs });
