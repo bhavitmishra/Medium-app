@@ -54,7 +54,7 @@ export default function DashHeader() {
         <div className="font-disp text-2xl sm:text-3xl font-bold text-gray-900">
           <button
             className="cursor-pointer"
-            onClick={() => window.location.reload()}
+            onClick={() => navigate("/dashboard")}
           >
             Medium
           </button>
