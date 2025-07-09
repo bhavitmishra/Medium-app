@@ -50,28 +50,24 @@ export default function DashHeader() {
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <div className="flex items-center px-6 py-4 bg-white shadow-md">
-        <div className="font-disp text-3xl font-bold text-gray-900">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 px-4 py-3 sm:px-6 sm:py-4 bg-white shadow-md">
+        <div className="font-disp text-2xl sm:text-3xl font-bold text-gray-900">
           <button
             className="cursor-pointer"
-            onClick={() => {
-              window.location.reload();
-            }}
+            onClick={() => window.location.reload()}
           >
             Medium
           </button>
         </div>
 
         <input
-          className="ml-10 px-4 py-2 bg-gray-200 rounded-full text-sm w-64 outline-none focus:ring-2 focus:ring-gray-400"
+          className="w-full sm:ml-10 sm:w-64 px-4 py-2 bg-gray-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-gray-400"
           type="text"
-          onChange={(e) => {
-            setSearch(e.target.value);
-          }}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search"
         />
 
-        <div className="ml-auto flex items-center gap-8">
+        <div className="flex justify-between sm:ml-auto sm:justify-end items-center gap-4 sm:gap-8 w-full sm:w-auto">
           <button
             onClick={() => navigate("/blogpublish")}
             className="flex items-center gap-2 text-sm text-gray-700 hover:text-black transition cursor-pointer"
@@ -83,9 +79,7 @@ export default function DashHeader() {
           <div className="h-9 w-9 flex items-center justify-center rounded-full bg-blue-500 text-white font-semibold text-sm">
             <button
               className="cursor-pointer"
-              onClick={() => {
-                navigate("/userblog");
-              }}
+              onClick={() => navigate("/userblog")}
             >
               {n.slice(0, 1)}
             </button>
@@ -95,7 +89,7 @@ export default function DashHeader() {
 
       {/* Search Results */}
       {search.trim() && (
-        <div className="px-6 py-4">
+        <div className="px-4 sm:px-6 py-4">
           {blogs.length > 0 ? (
             blogs.map((b) => (
               <Blog
