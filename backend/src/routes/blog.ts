@@ -7,6 +7,7 @@ import {
   createBlogInput,
   updateBlogInput,
 } from "@bhavitmishra/medium-common/build";
+import { id } from "zod/v4/locales";
 export const BlogRouter = new Hono<{
   Bindings: {
     DATABASE_URL: string;
@@ -139,7 +140,6 @@ BlogRouter.put("/", async (c) => {
     data: {
       title: body.title,
       content: body.content,
-      authorId: c.get("userId"),
     },
     where: {
       id: body.id,
@@ -170,4 +170,101 @@ BlogRouter.get("/bulk", async (c) => {
   return c.json({
     blogs,
   });
+});
+
+BlogRouter.delete("/", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+  const id = c.req.query("id");
+  const cremovere = await prisma.comment.deleteMany({
+    where: {
+      id: id,
+    },
+  });
+  const blogs = await prisma.post.delete({
+    where: {
+      // @ts-ignore
+      id: id,
+    },
+  });
+
+  return c.json({
+    msg: "deleted the blog",
+  });
+});
+
+BlogRouter.post("/comment", async (c) => {
+  const { id: blogid, content } = await c.req.json();
+
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const comment = await prisma.comment.create({
+    data: {
+      blogId: blogid,
+      content,
+      authorId: c.get("userId"),
+    },
+  });
+
+  return c.json({ msg: "Comment created", comment });
+});
+
+// 📌 GET: Fetch all comments for a blog
+BlogRouter.get("/comment", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const blogId = c.req.query("blogId");
+
+  if (!blogId) {
+    return c.json({ error: "Missing blogId" }, 400);
+  }
+
+  const comments = await prisma.comment.findMany({
+    where: { blogId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      author: {
+        select: { name: true },
+      },
+    },
+  });
+
+  return c.json({ comments }); // wrap in object
+});
+
+// 📌 DELETE: Delete comment
+BlogRouter.delete("/comment", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const commentId = c.req.query("commentId");
+  const userId = c.get("userId"); // from auth middleware
+
+  if (!commentId) {
+    return c.json({ error: "Missing commentId" }, 400);
+  }
+
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+  });
+
+  if (!comment) {
+    return c.json({ error: "Comment not found" }, 404);
+  }
+
+  if (comment.authorId !== userId) {
+    return c.json({ error: "Unauthorized" }, 403);
+  }
+
+  await prisma.comment.delete({
+    where: { id: commentId },
+  });
+
+  return c.json({ message: "Comment deleted" });
 });

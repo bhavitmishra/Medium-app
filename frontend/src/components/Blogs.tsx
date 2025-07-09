@@ -63,6 +63,7 @@ export default function Blogs() {
         .map((blog) => (
           <Blog
             id={blog.id}
+            blogId={blog.id}
             title={blog.title}
             content={blog.content}
             author={blog.author.name}

@@ -69,6 +69,15 @@ export default function DashHeader() {
 
         <div className="flex justify-between sm:ml-auto sm:justify-end items-center gap-4 sm:gap-8 w-full sm:w-auto">
           <button
+            className="cursor-pointer"
+            onClick={() => {
+              localStorage.clear();
+              navigate("/");
+            }}
+          >
+            Sign Out
+          </button>
+          <button
             onClick={() => navigate("/blogpublish")}
             className="flex items-center gap-2 text-sm text-gray-700 hover:text-black transition cursor-pointer"
           >

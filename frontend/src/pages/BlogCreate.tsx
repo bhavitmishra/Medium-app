@@ -6,11 +6,17 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { Bold, Italic, Underline as UnderlineIcon } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import PublishPageHeader from "../components/PublishPageHeader";
 
-export default function CreateBlog() {
-  const [title, setTitle] = useState("");
+type Props = {
+  titlee?: string;
+  contentt?: string;
+};
+
+export default function CreateBlog({ titlee = "", contentt = "" }: Props) {
+  const [title, setTitle] = useState(titlee);
+  const [content, setContent] = useState(contentt);
   const navigate = useNavigate();
-  const [content, setContent] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -60,7 +66,8 @@ export default function CreateBlog() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6 relative">
+    <div className="max-w mx-auto p-6 space-y-6 relative">
+      <PublishPageHeader />
       {/* Title Input */}
       <input
         type="text"
@@ -94,7 +101,11 @@ export default function CreateBlog() {
 
       {/* Editor */}
       <div className="border rounded-xl shadow-sm p-4 min-h-[200px]">
-        <EditorContent editor={editor} className="prose max-w-none" />
+        <EditorContent
+          editor={editor}
+          className="prose max-w-none"
+          value={content}
+        />
       </div>
 
       {/* Publish Button */}

@@ -6,6 +6,7 @@ import Landing from "./pages/Landing";
 import BlogPage from "./pages/BlogPage";
 import BlogCreate from "./pages/BlogCreate";
 import UserBlogs from "./pages/UserBlogs";
+import UpdateBlog from "./pages/UpdateBlog";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/blogPage" element={<BlogPage />} />
           <Route path="/blogpublish" element={<BlogCreate />} />
           <Route path="/userblog" element={<UserBlogs />} />
+          <Route path="/updateblog" element={<UpdateBlog />} />
         </Routes>
       </BrowserRouter>
     </div>

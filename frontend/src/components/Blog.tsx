@@ -4,12 +4,13 @@ import { useEffect } from "react";
 
 interface Props {
   id?: string;
+  blogId?: string;
   title?: string;
   content?: string;
   author?: string;
 }
 
-export default function Blog({ id, title, content, author }: Props) {
+export default function Blog({ id, blogId, title, content, author }: Props) {
   const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -19,7 +20,7 @@ export default function Blog({ id, title, content, author }: Props) {
   }, []);
 
   const handleNavigate = () => {
-    navigate(`/blogPage?id=${id}&name=${author}`);
+    navigate(`/blogPage?blogid=${blogId}&name=${author}&authorid=${id}`);
   };
 
   return (

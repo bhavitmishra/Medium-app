@@ -25,6 +25,7 @@ export default function UserBlogs() {
             },
           }
         );
+
         setBlogs(res.data.userblog); // ✅ correct field here
       } catch (error) {
         console.error("Failed to fetch blogs:", error);
@@ -43,12 +44,17 @@ export default function UserBlogs() {
         .slice()
         .reverse()
         .map((b) => (
-          <Blog
-            title={b.title}
-            content={b.content}
-            author={localStorage.getItem("name") || ""}
-            id={localStorage.getItem("id") || ""}
-          />
+          <div className="flex justify-between items-center flex-wrap ">
+            <div className="w-50 md:w-screen">
+              <Blog
+                title={b.title}
+                id={b.authorId}
+                blogId={b.id}
+                content={b.content}
+                author={localStorage.getItem("name") || ""}
+              />
+            </div>
+          </div>
         ))}
     </div>
   );
