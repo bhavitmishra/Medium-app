@@ -1,106 +1,153 @@
 import { useState } from "react";
-import Heading from "../components/Heading";
-import InputBox from "../components/InputBox";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
+// A simple spinner component for the loading state
+function LoadingSpinner() {
+  return <div className="text-xl font-semibold">Loading...</div>;
+}
 
 export default function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [inc, setInc] = useState(false);
+  const [error, setError] = useState(""); // Use a descriptive name for error state
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  if (inc) {
-    setTimeout(() => {
-      setInc(false);
-      navigate("/signin");
-    }, 2000);
+  // 1. The handleSubmit function is now an async event handler.
+  // It manages logic only, not JSX.
+  const handleSubmit = async (e: any) => {
+    e.preventDefault(); // Prevents the default form submission (page reload)
+    setLoading(true);
+    setError(""); // Clear previous errors on a new submission
+
+    try {
+      const response = await axios.post(
+        "https://backend.bhavitmishra.workers.dev/api/v1/user/signin",
+        { email, password }
+      );
+
+      const name = response.data.name;
+
+      localStorage.setItem("name", name);
+
+      const { token, id } = response.data;
+      if (token && id) {
+        localStorage.setItem("id", id);
+        localStorage.setItem("token", token);
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      // 2. Set an error message if the API call fails
+      setError("Incorrect email or password. Please try again.");
+    } finally {
+      // 3. Always stop loading, whether it succeeds or fails
+      setLoading(false);
+    }
+  };
+
+  // 4. The component's return statement handles all rendering logic.
+  // It checks the `loading` state first.
+  if (loading) {
     return (
-      <div className="text-red-600 text-9xl underline">
-        "enter correct credentials"
+      <div className="flex justify-center items-center h-screen">
+        <LoadingSpinner />
       </div>
     );
   }
 
+  // This is the main JSX for the component.
   return (
-    <div className="bg-[#f4f2ed] relative w-screen h-screen">
-      {/* Overlay Card */}
-      <div className="flex items-center justify-center w-full h-full">
-        <div className="bg-white p-10 rounded-lg shadow-lg w-[30rem] space-y-6">
-          <Heading title="Signin" />
-          <InputBox
-            title="Email"
-            placeholder="you@example.com"
-            setVal={setEmail}
-            type="text"
-          />
-          <InputBox
-            title="Password"
-            placeholder="••••••••"
-            setVal={setPassword}
-            type="password"
-          />
+    <div className="flex">
+      <div className="w-full lg:w-1/2 flex justify-center items-center h-screen p-4">
+        {/* 5. The form uses `onSubmit` now, which is the standard practice. */}
+        <form className="w-full max-w-sm" onSubmit={handleSubmit}>
+          <div className="mb-8">
+            <h1 className="text-3xl font-extrabold text-center">
+              Sign into your account
+            </h1>
+            <p className="text-center text-gray-500 mt-2">
+              Welcome back! Please enter your details.
+            </p>
+          </div>
 
-          <button
-            className="w-full bg-black text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
-            onClick={async (e) => {
-              e.preventDefault();
-              setLoading(true);
-              try {
-                const resp = await axios.post(
-                  "https://backend.bhavitmishra.workers.dev/api/v1/user/signin",
-                  { email, password }
-                );
-                const token = resp.data.token;
-                const name = resp.data.name;
-                const id = resp.data.id;
+          {/* 6. Display the error message here if it exists */}
+          {error && (
+            <div
+              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4"
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
 
-                localStorage.setItem("name", name);
-                if (token && id) {
-                  localStorage.setItem("id", id);
-                  localStorage.setItem("token", token);
-                  navigate("/dashboard");
-                } else {
-                  setInc(true);
-                }
-              } catch (error) {
-                setInc(true);
-                console.log(error);
-              } finally {
-                setLoading(false);
-              }
-            }}
-            disabled={loading}
-          >
-            {loading ? (
-              <div className="flex items-center gap-2">
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  ></path>
-                </svg>
-                Signing in...
-              </div>
-            ) : (
-              "SignIn"
-            )}
-          </button>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label htmlFor="email" className="font-semibold block mb-1">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email" // Use type="email" for better validation
+                placeholder="julie.winfield@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="border rounded-lg bg-gray-100 p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="font-semibold block mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="border rounded-lg bg-gray-100 p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <button
+              type="submit"
+              className="w-full bg-black text-white font-bold p-3 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+              disabled={loading} // Disable button while loading
+            >
+              Sign In
+            </button>
+          </div>
+
+          <div className="text-center mt-4 text-sm">
+            <p>
+              Don't have an account?{" "}
+              <button
+                onClick={() => navigate("/signup")}
+                className="font-semibold text-blue-600 hover:underline"
+              >
+                Sign Up
+              </button>
+            </p>
+          </div>
+        </form>
+      </div>
+
+      {/* --- RIGHT SIDE: TESTIMONIAL --- */}
+      <div className="hidden lg:flex bg-gray-800 text-white h-screen w-1/2 justify-center items-center">
+        <div>
+          <div className="font-bold text-2xl text-center">
+            "The customer support I received <br /> was exceptional..."
+          </div>
+          <div className="mt-6 text-center">
+            <div className="font-semibold">JULIE WINFIELD</div>
+            <div className="text-sm font-light text-gray-400">
+              CEO | Acme Corp
+            </div>
+          </div>
         </div>
       </div>
     </div>
