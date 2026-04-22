@@ -1,29 +1,29 @@
-// components/TiptapEditor.tsx
 import { useEditor, EditorContent } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
-import { useState } from "react";
 
-export default function TiptapEditor() {
-  // @ts-ignore
-  const [content, setContent] = useState("");
+type Props = {
+  onChange: (content: string) => void;
+  initialContent?: string;
+};
 
+export default function TiptapEditor({ onChange, initialContent = "" }: Props) {
   const editor = useEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: "Start writing your blog here...",
+        placeholder: "Start writing your story...",
       }),
     ],
-    content: "",
+    content: initialContent,
     onUpdate: ({ editor }) => {
-      setContent(editor.getHTML());
+      onChange(editor.getHTML());
     },
   });
 
   return (
-    <div className="border rounded-xl p-4 shadow-md">
-      <EditorContent editor={editor} className="prose max-w-none" />
+    <div className="min-h-[300px] text-lg leading-relaxed text-gray-800">
+      <EditorContent editor={editor} className="outline-none" />
     </div>
   );
 }

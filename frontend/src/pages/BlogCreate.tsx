@@ -29,9 +29,11 @@ export default function CreateBlog({ titlee = "", contentt = "" }: Props) {
     extensions: [
       StarterKit,
       Underline,
-      Placeholder.configure({
-        placeholder: "Start writing your blog content here...",
-      }),
+     Placeholder.configure({
+  placeholder: "Start writing your story...",
+  emptyEditorClass:
+    "before:content-[attr(data-placeholder)] before:text-gray-400 before:float-left before:pointer-events-none",
+}),
     ],
     content: "",
     onUpdate: ({ editor }) => {
@@ -64,79 +66,83 @@ export default function CreateBlog({ titlee = "", contentt = "" }: Props) {
       console.error("Failed to publish blog:", err);
     }
   };
+return (
+  <div className="bg-white min-h-screen">
 
-  return (
-    <div className="max-w mx-auto p-6 space-y-6 relative">
-      <PublishPageHeader />
-      {/* Title Input */}
+    <PublishPageHeader />
+
+    <div className="max-w-3xl mx-auto px-6 py-10">
+
+      {/* TITLE */}
       <input
         type="text"
-        placeholder="Enter blog title..."
+        placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full p-3 border border-gray-300 rounded-xl text-xl font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full text-5xl font-bold outline-none placeholder-gray-300 mb-6"
       />
 
-      {/* Formatting Toolbar */}
-      <div className="flex gap-3 items-center border rounded-xl p-2 bg-gray-100">
+      {/* TOOLBAR */}
+      <div className="flex gap-2 mb-4 text-gray-600">
         <button
           onClick={() => handleFormat("toggleBold")}
-          className="p-2 hover:bg-gray-200 rounded"
+          className="p-2 rounded hover:bg-gray-100"
         >
           <Bold size={18} />
         </button>
         <button
           onClick={() => handleFormat("toggleItalic")}
-          className="p-2 hover:bg-gray-200 rounded"
+          className="p-2 rounded hover:bg-gray-100"
         >
           <Italic size={18} />
         </button>
         <button
           onClick={() => handleFormat("toggleUnderline")}
-          className="p-2 hover:bg-gray-200 rounded"
+          className="p-2 rounded hover:bg-gray-100"
         >
           <UnderlineIcon size={18} />
         </button>
       </div>
 
-      {/* Editor */}
-      <div className="border rounded-xl shadow-sm p-4 min-h-[200px]">
-        <EditorContent
-          editor={editor}
-          className="prose max-w-none"
-          value={content}
-        />
-      </div>
+      {/* EDITOR */}
+     <div className="min-h-[300px] text-lg leading-relaxed text-gray-800 border-b border-gray-300 focus-within:border-black px-1 py-2">
+  <EditorContent
+    editor={editor}
+    className="outline-none"
+  />
+</div>
 
-      {/* Publish Button */}
-      <div className="text-right">
+      {/* PUBLISH */}
+      <div className="flex justify-end mt-10">
         <button
           onClick={handlePublish}
-          className="bg-green-600 text-white px-6 py-2 rounded-xl font-medium hover:bg-green-700 transition"
+          className="bg-black text-white px-6 py-2 rounded-full text-sm hover:opacity-90 transition"
         >
           Publish
         </button>
       </div>
 
-      {/* Success Modal */}
+      {/* SUCCESS MODAL */}
       {showSuccess && (
-        <div className="absolute inset-0 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full text-center">
-            <h2 className="text-xl font-semibold mb-4">
-              ✅ Blog Posted Successfully!
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+            <h2 className="text-lg font-semibold mb-3">
+              Blog published 🎉
             </h2>
             <button
               onClick={() => {
                 setShowSuccess(false);
                 navigate("/dashboard");
               }}
-              className="mt-2 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="mt-2 px-5 py-2 bg-black text-white rounded-full"
             >
-              Okay
+              Continue
             </button>
           </div>
         </div>
       )}
+
     </div>
-  );
+  </div>
+);
 }

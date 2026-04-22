@@ -111,112 +111,142 @@ export default function BlogPage() {
 
   if (!data) return <div className="text-center text-xl mt-10">Loading...</div>;
 
-  return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-2xl border border-gray-200">
-      <div className="mb-4 text-gray-500 text-sm">
-        <span className="font-semibold">Author:</span> {name}
+return (
+  <div className="bg-white min-h-screen">
+
+    <div className="max-w-3xl mx-auto px-6 py-12">
+
+      {/* HEADER */}
+      <div className="mb-10">
+
+        <h1 className="text-4xl font-bold leading-tight tracking-tight mb-4">
+          {data.title}
+        </h1>
+
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          {/* AUTHOR */}
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center text-sm font-semibold">
+              {name?.[0]}
+            </div>
+            <span>{name}</span>
+          </div>
+
+          {/* ACTIONS */}
+          {localStorage.getItem("id") === authorid && (
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigate(`/updateblog?id=${blogId}`)}
+                className="px-3 py-1 text-sm border rounded-full hover:bg-gray-100 transition"
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={async () => {
+                  setIsDeleting(true);
+                  try {
+                    await axios.delete(
+                      `https://backend.bhavitmishra.workers.dev/api/v1/blog/`,
+                      {
+                        params: { id: blogId },
+                        headers: {
+                          Authorization:
+                            "Bearer " + localStorage.getItem("token"),
+                        },
+                      }
+                    );
+                    navigate("/userblog");
+                  } finally {
+                    setIsDeleting(false);
+                  }
+                }}
+                className="px-3 py-1 text-sm border border-red-500 text-red-500 rounded-full hover:bg-red-50 transition"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {localStorage.getItem("id") === authorid && (
-        <div className="flex justify-end gap-4 mb-6">
-          <button
-            className="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-6 rounded-xl transition duration-300 ease-in-out"
-            onClick={() =>
-              navigate(
-                `/updateblog?id=${blogId}&title=${data.title}&content=${data.content}`
-              )
-            }
-          >
-            Edit Blog
-          </button>
-          <button
-            className={`${
-              isDeleting
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-red-600 hover:bg-red-700"
-            } text-white font-semibold py-2 px-6 rounded-xl transition duration-300 ease-in-out`}
-            onClick={async () => {
-              setIsDeleting(true);
-              try {
-                await axios.delete(
-                  `https://backend.bhavitmishra.workers.dev/api/v1/blog/`,
-                  {
-                    params: { id: blogId },
-                    headers: {
-                      Authorization: "Bearer " + localStorage.getItem("token"),
-                    },
-                  }
-                );
-                navigate("/userblog");
-              } catch (err) {
-                console.error("Delete failed:", err);
-              } finally {
-                setIsDeleting(false);
-              }
-            }}
-            disabled={isDeleting}
-          >
-            {isDeleting ? "Deleting..." : "Delete Blog"}
-          </button>
-        </div>
-      )}
-
-      <h1 className="text-4xl font-extrabold text-gray-900 mb-6">
-        {data.title}
-      </h1>
-
+      {/* CONTENT (NO PROSE → no weird dot) */}
       <div
-        className="text-gray-800 leading-relaxed text-lg whitespace-pre-line break-words prose max-w-none"
+        className="text-gray-800 text-lg leading-relaxed whitespace-pre-line break-words"
         dangerouslySetInnerHTML={{
           __html: DOMPurify.sanitize(data.content),
         }}
       />
 
-      <hr className="my-8 border-t" />
+      {/* DIVIDER */}
+      <div className="my-12 h-[1px] bg-gray-200" />
 
-      {/* Comments Section */}
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Comments</h2>
+      {/* COMMENTS */}
+      <div>
+
+        <h2 className="text-2xl font-semibold mb-6">
+          Responses
+        </h2>
 
         {loadingComments ? (
-          <p>Loading comments...</p>
+          <p className="text-gray-500">Loading...</p>
         ) : comments.length === 0 ? (
-          <p className="text-gray-500">No comments yet. Be the first!</p>
+          <p className="text-gray-500">No responses yet.</p>
         ) : (
-          <ul className="space-y-4">
+          <div className="space-y-6">
             {comments.map((c) => (
-              <li key={c.id} className="bg-gray-100 p-4 rounded-lg">
-                <p className="text-gray-800 whitespace-pre-wrap">{c.content}</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  By {c.authorName || "Anonymous"} on{" "}
-                  {new Date(c.createdAt).toLocaleString()}
-                </p>
-              </li>
+              <div key={c.id} className="flex gap-3">
+
+                {/* AVATAR */}
+                <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold">
+                  {c.authorName?.[0] || "A"}
+                </div>
+
+                {/* COMMENT */}
+                <div className="flex-1">
+                  <div className="text-sm text-gray-600 mb-1">
+                    {c.authorName || "Anonymous"}
+                  </div>
+
+                  <p className="text-gray-800 whitespace-pre-wrap">
+                    {c.content}
+                  </p>
+
+                  <div className="text-xs text-gray-400 mt-1">
+                    {new Date(c.createdAt).toLocaleString()}
+                  </div>
+                </div>
+
+              </div>
             ))}
-          </ul>
+          </div>
         )}
 
-        <div className="mt-6">
+        {/* COMMENT BOX */}
+        <div className="mt-10">
+
           <textarea
             rows={3}
-            className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Write a comment..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Write a response..."
+            className="w-full border-b border-gray-300 p-2 focus:outline-none focus:border-black resize-none"
           />
-          <button
-            onClick={handlePostComment}
-            disabled={posting}
-            className={`mt-2 px-4 py-2 rounded-md text-white font-semibold ${
-              posting
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            {posting ? "Posting..." : "Post Comment"}
-          </button>
+
+          <div className="flex justify-end mt-3">
+            <button
+              onClick={handlePostComment}
+              disabled={posting}
+              className="bg-black text-white px-5 py-2 rounded-full text-sm hover:opacity-90 transition"
+            >
+              {posting ? "Posting..." : "Respond"}
+            </button>
+          </div>
+
         </div>
+
       </div>
     </div>
-  );
+  </div>
+);
 }

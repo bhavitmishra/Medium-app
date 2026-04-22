@@ -15,105 +15,126 @@ type BlogType = {
 export default function DashHeader() {
   const n = localStorage.getItem("name") || "B";
   const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
   const [blogs, setBlogs] = useState<BlogType[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      const fetchBlogs = async () => {
-        try {
-          const res = await axios.get(
-            "https://backend.bhavitmishra.workers.dev/api/v1/blog/search",
-            {
-              headers: {
-                Authorization: "Bearer " + localStorage.getItem("token"),
-              },
-              params: { q: search },
-            }
-          );
-          setBlogs(res.data.blogs || []);
-        } catch (err) {
-          console.error("Error fetching blogs:", err);
-        }
-      };
-
-      if (search.trim().length > 0) {
-        fetchBlogs();
-      } else {
-        setBlogs([]); // clear results if search is empty
+    const delay = setTimeout(async () => {
+      if (!search.trim()) {
+        setBlogs([]);
+        return;
       }
-    }, 500); // 500ms debounce delay
 
-    return () => clearTimeout(delayDebounce); // cleanup timeout on new keystroke
+      setLoading(true);
+
+      try {
+        const res = await axios.get(
+          "https://backend.bhavitmishra.workers.dev/api/v1/blog/search",
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            params: { q: search },
+          }
+        );
+
+        setBlogs(res.data.blogs || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(delay);
   }, [search]);
 
   return (
     <div className="flex flex-col">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 px-4 py-3 sm:px-6 sm:py-4 bg-white shadow-md">
-        <div className="font-disp text-2xl sm:text-3xl font-bold text-gray-900">
-          <button
-            className="cursor-pointer"
-            onClick={() => navigate("/dashboard")}
-          >
-            Medium
-          </button>
+
+      {/* HEADER */}
+      <div className="flex items-center px-6 py-4 bg-white border-b">
+
+        {/* LEFT */}
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="text-2xl font-bold tracking-tight"
+        >
+          Medium
+        </button>
+
+        {/* SEARCH */}
+        <div className="relative ml-8 w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search stories..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-black transition"
+          />
+
+          {/* SEARCH DROPDOWN */}
+          {search.trim() && (
+            <div className="absolute top-12 left-0 w-full bg-white border rounded-xl shadow-lg max-h-80 overflow-y-auto z-50">
+              
+              {loading ? (
+                <div className="p-4 text-sm text-gray-500">
+                  Searching...
+                </div>
+              ) : blogs.length > 0 ? (
+                blogs.map((b) => (
+                  <div
+                    key={b.id}
+                    className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-none"
+                    onClick={() => navigate(`/blog/${b.id}`)}
+                  >
+                    <div className="font-medium text-sm line-clamp-1">
+                      {b.title}
+                    </div>
+                    <div className="text-xs text-gray-500 line-clamp-1">
+                      {b.author?.name || "Unknown"}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-sm text-gray-500">
+                  No results found
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        <input
-          className="w-full sm:ml-10 sm:w-64 px-4 py-2 bg-gray-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-gray-400"
-          type="text"
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search"
-        />
+        {/* RIGHT */}
+        <div className="ml-auto flex items-center gap-6">
 
-        <div className="flex justify-between sm:ml-auto sm:justify-end items-center gap-4 sm:gap-8 w-full sm:w-auto">
           <button
-            className="cursor-pointer"
+            onClick={() => navigate("/blogpublish")}
+            className="px-4 py-2 rounded-full border text-sm hover:bg-gray-100 transition"
+          >
+            Write
+          </button>
+
+          <button
             onClick={() => {
               localStorage.clear();
               navigate("/");
             }}
+            className="text-sm text-gray-600 hover:text-black transition"
           >
-            Sign Out
-          </button>
-          <button
-            onClick={() => navigate("/blogpublish")}
-            className="flex items-center gap-2 text-sm text-gray-700 hover:text-black transition cursor-pointer"
-          >
-            <img className="h-5 w-5" src="/Writing.png" alt="write icon" />
-            <span>Write</span>
+            Sign out
           </button>
 
-          <div className="h-9 w-9 flex items-center justify-center rounded-full bg-blue-500 text-white font-semibold text-sm">
-            <button
-              className="cursor-pointer"
-              onClick={() => navigate("/userblog")}
-            >
-              {n.slice(0, 1)}
-            </button>
-          </div>
+          <button
+            onClick={() => navigate("/userblog")}
+            className="h-9 w-9 flex items-center justify-center rounded-full bg-black text-white text-sm font-semibold"
+          >
+            {n.slice(0, 1)}
+          </button>
         </div>
       </div>
-
-      {/* Search Results */}
-      {search.trim() && (
-        <div className="px-4 sm:px-6 py-4">
-          {blogs.length > 0 ? (
-            blogs.map((b) => (
-              <Blog
-                key={b.id}
-                id={b.id}
-                title={b.title}
-                content={b.content}
-                author={b.author?.name || "Unknown"}
-              />
-            ))
-          ) : (
-            <p className="text-center text-gray-500 mt-6">No results found.</p>
-          )}
-        </div>
-      )}
     </div>
   );
 }
