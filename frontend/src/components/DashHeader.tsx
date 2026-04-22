@@ -87,7 +87,7 @@ export default function DashHeader() {
                   <div
                     key={b.id}
                     className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-none"
-                    onClick={() => navigate(`/blogPage/blogId=${b.id}`)}
+                    onClick={() => navigate(`/blogPage?blogId=${b.id}&name=${b.author?.name}&authorId=${b.author}`)}
                   >
                     <div className="font-medium text-sm line-clamp-1">
                       {b.title}
